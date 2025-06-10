@@ -3,6 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dokter\JadwalPeriksaController;
+use App\Http\Controllers\Pasien\JanjiPeriksaController;
+use App\Http\Controllers\Pasien\RiwayatPeriksaController;
 
 
 
@@ -51,5 +53,25 @@ Route::prefix('dokter')->group(function () {
     Route::put('/jadwal-periksa/{id}', [JadwalPeriksaController::class, 'update'])->name('dokter.jadwal-periksa.update');
     Route::delete('/jadwal-periksa/{id}', [JadwalPeriksaController::class, 'destroy'])->name('dokter.jadwal-periksa.destroy');
     Route::post('/{id}/status', [JadwalPeriksaController::class, 'toggleStatus'])->name('dokter.jadwal-periksa.status');
+});
+
+Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->group(function () {
+		// ....
+		// route pasien yang lain
+    Route::prefix('janji-periksa')->group(function(){
+        Route::get('/', [JanjiPeriksaController::class, 'index'])->name('pasien.janji-periksa.index');
+        Route::post('/', [JanjiPeriksaController::class, 'store'])->name('pasien.janji-periksa.store');
+    });
+});
+
+Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->group(function () {
+		// ...
+		// Route pasien yang lain
+		
+    Route::prefix('riwayat-periksa')->group(function(){
+        Route::get('/', [RiwayatPeriksaController::class, 'index'])->name('pasien.riwayat-periksa.index');
+        Route::get('/{id}/detail', [RiwayatPeriksaController::class, 'detail'])->name('pasien.riwayat-periksa.detail');
+        Route::get('/{id}/riwayat', [RiwayatPeriksaController::class, 'riwayat'])->name('pasien.riwayat-periksa.riwayat');
+    });
 });
 require __DIR__.'/auth.php';
