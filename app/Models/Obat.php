@@ -2,9 +2,30 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Obat extends Model
 {
-    protected $fillable = ['nama_obat', 'kemasan', 'harga'];
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'nama_obat',
+        'kemasan',
+        'harga',
+    ];
+
+    protected $dates = ['deleted_at'];
+
+    public function detailPeriksas():HasMany
+    {
+        return $this->hasMany(DetailPeriksa::class, 'id_obat');
+    }
+public function obats()
+{
+    return $this->hasManyThrough(Obat::class, DetailPeriksa::class, 'id_periksa', 'id', 'id', 'id_obat');
+}
+
 }

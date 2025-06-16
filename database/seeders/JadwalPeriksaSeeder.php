@@ -2,10 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\JadwalPeriksa;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\User; // Mengimpor model User untuk mengambil data dokter
-use App\Models\JadwalPeriksa; // Mengimpor model JadwalPeriksa untuk menyimpan jadwal periksa dokter
 
 class JadwalPeriksaSeeder extends Seeder
 {

@@ -2,17 +2,18 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class JanjiPeriksa extends Model
 {
-    protected $table = 'janji_periksas';
+    use HasFactory;
+
     protected $fillable = [
         'id_pasien',
         'id_jadwal_periksa',
-        'status',
         'keluhan',
         'no_antrian',
     ];
@@ -31,5 +32,4 @@ class JanjiPeriksa extends Model
     {
         return $this->hasOne(Periksa::class, 'id_janji_periksa');
     }
-
 }

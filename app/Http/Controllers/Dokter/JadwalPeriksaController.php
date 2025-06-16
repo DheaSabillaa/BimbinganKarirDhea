@@ -6,100 +6,72 @@ use App\Http\Controllers\Controller;
 use App\Models\JadwalPeriksa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class JadwalPeriksaController extends Controller
 {
-    // Menampilkan halaman untuk membuat jadwal
+    public function index()
+    {
+        $jadwalPeriksas = JadwalPeriksa::where('id_dokter', Auth::user()->id)->get();
+
+        return view('dokter.jadwal-periksa.index')->with([
+            'jadwalPeriksas' => $jadwalPeriksas,
+        ]);
+    }
+
     public function create()
     {
-        // Mengembalikan view untuk membuat jadwal pemeriksaan
         return view('dokter.jadwal-periksa.create');
     }
 
-    // Menyimpan jadwal pemeriksaan
     public function store(Request $request)
     {
-        // Validasi input dari request
         $request->validate([
-            'hari' => 'required|string', // Hari harus diisi dan berupa string
-            'jam_mulai' => 'required|date_format:H:i', // Jam mulai harus diisi dan sesuai format waktu
-            'jam_selesai' => 'required|date_format:H:i|after:jam_mulai', // Jam selesai harus diisi, sesuai format waktu, dan setelah jam mulai
+            'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat, Sabtu,Minggu',
+            'jam_mulai' => 'required|date_format:H:i',
+            'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
         ]);
 
-        // Cek apakah dokter sudah memiliki jadwal yang sama
-        $existingSchedule = JadwalPeriksa::where('id_dokter', Auth::id())
+        // Cek jika dokter sudah memiliki jadwal periksa yang sama
+        if(JadwalPeriksa::where('id_dokter', Auth::user()->id)
             ->where('hari', $request->hari)
             ->where('jam_mulai', $request->jam_mulai)
             ->where('jam_selesai', $request->jam_selesai)
-            ->exists();
-
-        // Jika jadwal yang sama sudah ada, lemparkan exception dengan pesan error
-        if ($existingSchedule) {
-            throw ValidationException::withMessages([
-                'hari' => 'Jadwal yang sama sudah ada.',
-            ]);
+            ->exists()) {
+            return redirect()->route('dokter.jadwal-periksa.index')->with('status', 'jadwal-periksa-exists');
         }
 
-        // Simpan jadwal baru ke dalam database
         JadwalPeriksa::create([
-            'id_dokter' => Auth::id(), // ID dokter yang sedang login
-            'hari' => $request->hari, // Hari jadwal
-            'jam_mulai' => $request->jam_mulai, // Jam mulai jadwal
-            'jam_selesai' => $request->jam_selesai, // Jam selesai jadwal
-            'status' => 'nonaktif',  // Set status default jadwal menjadi nonaktif
+            'id_dokter' => Auth::user()->id,
+            'hari' => $request->hari,
+            'jam_mulai' => $request->jam_mulai,
+            'jam_selesai' => $request->jam_selesai,
+            'status' => false,
         ]);
 
-        // Redirect ke halaman daftar jadwal dengan pesan sukses
-        return redirect()->route('dokter.jadwal-periksa.index')->with('success', 'Jadwal berhasil ditambahkan.');
+        return redirect()->route('dokter.jadwal-periksa.index')->with('status', 'jadwal-periksa-created');
     }
 
-    // Menampilkan daftar jadwal pemeriksaan
-    public function index()
+    public function update($id)
     {
-        // Mengambil semua jadwal pemeriksaan untuk dokter yang sedang login
-        $jadwals = JadwalPeriksa::where('id_dokter', Auth::id())->get();
+        $jadwalPeriksa = JadwalPeriksa::findOrFail($id);
 
-        // Mengembalikan view dengan daftar jadwal
-        return view('dokter.jadwal-periksa.index', compact('jadwals'));
-    }
+        // Cek jika user ingin mengaktifkan
+        if (!$jadwalPeriksa->status) {
+            // Nonaktifkan semua jadwal milik dokter tersebut
+            JadwalPeriksa::where('id_dokter', $jadwalPeriksa->id_dokter)->update(['status' => false]);
 
-    // Mengubah status jadwal
-    public function toggleStatus($id)
-    {
-        // Mencari jadwal berdasarkan ID
-        $jadwal = JadwalPeriksa::findOrFail($id);
+            // Aktifkan jadwal yang diklik
+            $jadwalPeriksa->status = true;
+            $jadwalPeriksa->save();
 
-        // Jika jadwal saat ini tidak aktif, aktifkan jadwal ini
-        if ($jadwal->status !== 'aktif') {
-            //Nonaktifkan jadwal aktif lain untuk dokter yang sama
-            JadwalPeriksa::where('id_dokter', $jadwal->id_dokter)
-                ->where('status', 1)
-                ->update(['status' => 0]);
-
-            // Aktifkan jadwal ini
-            $jadwal->status = 1;
-        } else {
-            // Jika jadwal saat ini aktif, jadikan nonaktif
-            $jadwal->status = 0;
+            return redirect()->back()->with('status', 'jadwal-periksa-updated');
         }
 
-        // Simpan perubahan status jadwal
-        $jadwal->save();
+        // Jika sudah aktif, maka akan dinonaktifkan
+        $jadwalPeriksa->status = false;
+        $jadwalPeriksa->save();
 
-        // Kembali ke halaman sebelumnya dengan pesan sukses
-        return back()->with('success', 'Status jadwal berhasil diubah.');
-    }
-
-    // Menghapus jadwal
-    public function destroy($id)
-    {
-        // Mencari jadwal berdasarkan ID
-        $jadwal = JadwalPeriksa::findOrFail($id);
-        // Menghapus jadwal dari database
-        $jadwal->delete();
-
-        // Kembali ke halaman sebelumnya dengan pesan sukses
-        return back()->with('success', 'Jadwal berhasil dihapus.');
+        return redirect()->back()->with('status', 'jadwal-periksa-updated');
     }
 }

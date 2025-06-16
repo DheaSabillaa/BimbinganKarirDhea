@@ -2,18 +2,17 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
-use Illuminate\Database\UniqueConstraintViolationException ;
 
 class DokterSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
-  public function run(): void
+    public function run(): void
     {
         $dokters = [
             [

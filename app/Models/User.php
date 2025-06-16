@@ -52,10 +52,13 @@ class User extends Authenticatable
         ];
     }
 
-    public function jadwalPeriksas(){
-    return $this->hasMany(JadwalPeriksa::class, 'id_dokter');
-}
-public function janjiPeriksas(){
-    return $this->hasMany(JanjiPeriksa::class, 'id_pasien');
-}
+    public function jadwalPeriksas()
+    {
+        return $this->hasMany(JadwalPeriksa::class, 'id_dokter');
+    }
+
+    public function janjiPeriksas()
+    {
+        return $this->hasMany(JanjiPeriksa::class, 'id_pasien');
+    }
 }

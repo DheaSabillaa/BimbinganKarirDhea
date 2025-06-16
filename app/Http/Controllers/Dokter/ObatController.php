@@ -10,8 +10,11 @@ class ObatController extends Controller
 {
     public function index()
     {
-        $obats = Obat::all();
-        return view('dokter.obat.index', compact('obats'));
+        $obats = Obat::all(); // hanya yang tidak terhapus
+
+        return view('dokter.obat.index')->with([
+            'obats' => $obats,
+        ]);
     }
 
     public function create()
@@ -19,70 +22,76 @@ class ObatController extends Controller
         return view('dokter.obat.create');
     }
 
+    public function edit($id)
+    {
+        $obat = Obat::find($id); // atau Obat::withTrashed()->find($id) jika ingin bisa edit yang sudah soft-deleted
+
+        return view('dokter.obat.edit')->with([
+            'obat' => $obat,
+        ]);
+    }
+
     public function store(Request $request)
     {
-        // Validasi data
         $request->validate([
             'nama_obat' => 'required|string|max:255',
             'kemasan' => 'required|string|max:255',
             'harga' => 'required|numeric|min:0',
         ]);
 
-        // Debugging: Log data yang diterima
-        \Log::info('Data yang diterima di store:', $request->all());
-
-        // Simpan data
-        $obat = Obat::create([
+        Obat::create([
             'nama_obat' => $request->nama_obat,
             'kemasan' => $request->kemasan,
             'harga' => $request->harga,
         ]);
 
-        if ($obat) {
-            return redirect()->route('dokter.obat.index')->with('status', 'obat-created');
-        } else {
-            return redirect()->back()->with('error', 'Gagal menyimpan obat.');
-        }
+        return redirect()->route('dokter.obat.index')->with('status', 'obat-created');
     }
 
     public function update(Request $request, $id)
     {
-        // Validasi data
         $request->validate([
             'nama_obat' => 'required|string|max:255',
             'kemasan' => 'required|string|max:255',
             'harga' => 'required|numeric|min:0',
         ]);
 
-        // Debugging: Log data yang diterima
-        \Log::info('Data yang diterima di update:', $request->all());
-
-        // Update data
-        $obat = Obat::findOrFail($id);
-        if ($obat->update([
+        $obat = Obat::find($id);
+        $obat->update([
             'nama_obat' => $request->nama_obat,
             'kemasan' => $request->kemasan,
             'harga' => $request->harga,
-        ])) {
-            return redirect()->route('dokter.obat.index')->with('status', 'obat-updated');
-        } else {
-            return redirect()->back()->with('error', 'Gagal mengupdate obat.');
-        }
+        ]);
+
+        return redirect()->route('dokter.obat.index')->with('status', 'obat-updated');
     }
 
     public function destroy($id)
     {
-        $obat = Obat::findOrFail($id);
-        if ($obat->delete()) {
-            return redirect()->route('dokter.obat.index')->with('status', 'obat-deleted');
-        } else {
-            return redirect()->back()->with('error', 'Gagal menghapus obat.');
-        }
+        $obat = Obat::find($id);
+        $obat->delete(); // soft delete
+
+        return redirect()->route('dokter.obat.index')->with('status', 'obat-deleted');
     }
 
-    public function edit($id)
+    // Menampilkan daftar obat yang terhapus
+    public function trash()
     {
-        $obat = Obat::findOrFail($id);
-        return view('dokter.obat.edit', compact('obat'));
+        $obats = Obat::onlyTrashed()->get();
+
+        return view('dokter.obat.trash')->with([
+            'obats' => $obats,
+        ]);
+    }
+
+    // Mengembalikan obat yang telah di-soft delete
+    public function restore($id)
+    {
+        $obat = Obat::onlyTrashed()->find($id);
+        if ($obat) {
+            $obat->restore();
+        }
+
+        return redirect()->route('dokter.obat.index')->with('status', 'obat-restored');
     }
 }
