@@ -36,12 +36,16 @@ Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->group(function () 
         Route::get('/', [ObatController::class, 'index'])->name('dokter.obat.index');
         Route::get('/create', [ObatController::class, 'create'])->name('dokter.obat.create');
         Route::post('/', [ObatController::class, 'store'])->name('dokter.obat.store');
-        Route::get('/{id}/edit', [ObatController::class, 'edit'])->name('dokter.obat.edit');
+        Route::post('/', [ObatController::class, 'store'])->name('dokter.obat.store');
+        Route::get('/edit/{id}', [ObatController::class, 'edit'])->name('dokter.obat.edit');
+        Route::patch('/dokter/obat/update/{id}', [ObatController::class, 'update'])->name('dokter.obat.update');
         Route::delete('/{id}', [ObatController::class, 'destroy'])->name('dokter.obat.destroy');
+        Route::get('/trash', [ObatController::class, 'trash'])->name('dokter.obat.trash');
     });
-    Route::prefix('dokter/obat')->name('dokter.obat.')->group(function () {
-        Route::get('/', [ObatController::class, 'index'])->name('index');
-        Route::get('/trash', [ObatController::class, 'trash'])->name('trash');
-        Route::post('/restore/{id}', [ObatController::class, 'restore'])->name('restore');
-    });
+    // Route::prefix('obat')->name('dokter.obat.')->group(function () {
+    //     Route::get('/', [ObatController::class, 'index'])->name('index');
+    //     Route::get('/trash', [ObatController::class, 'trash'])->name('trash');
+    //     Route::post('/restore/{id}', [ObatController::class, 'restore'])->name('restore');
+    //      Route::post('/update/{id}', [ObatController::class, 'update'])->name('update');
+    // });
 });
