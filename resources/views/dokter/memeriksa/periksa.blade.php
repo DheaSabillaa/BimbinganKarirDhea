@@ -21,7 +21,7 @@
                         </header>
 
                         <form class="mt-6" id="formPeriksa"
-                           action="{{ route('dokter.memeriksa.store', $janjiPeriksa->id) }}" method="POST">
+                            action="{{ route('dokter.memeriksa.store', $janjiPeriksa->id) }}" method="POST">
                             @csrf
 
                             <div class="mb-3 form-group">
@@ -45,10 +45,13 @@
                             <div class="mb-3 form-group">
                                 <label for="obat">Pilih
                                     Obat</label>
-                                <select class="rounded form-control" id="obat" name="obat[]" multiple onchange="hitungBiaya()">
-                                    @foreach ($obats as $item)
-                                        <option value="{{ $item->id }}" data-harga="{{ $item->harga }}">
-                                            {{ $item->nama_obat }} - {{ $item->kemasan }} (Rp {{ number_format($item->harga, 0, ',', '.') }})
+                                <select class="rounded form-control" id="obat" name="obat[]" multiple
+                                    onchange="hitungBiaya()">
+                                    @foreach ($obats as $obat)
+                                        <option value="{{ $obat->id }}" data-harga="{{ $obat->harga }}">
+                                            {{ $obat->nama_obat }} -
+                                            {{ $obat->kemasan }} (Rp
+                                            {{ number_format($obat->harga, 0, ',', '.') }})
                                         </option>
                                     @endforeach
                                 </select>

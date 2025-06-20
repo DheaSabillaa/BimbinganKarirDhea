@@ -24,16 +24,11 @@ class Periksa extends Model
 
     public function janjiPeriksa():BelongsTo
     {
-        return $this->belongsTo(JanjiPeriksa::class, 'id');
+        return $this->belongsTo(JanjiPeriksa::class, 'id_janji_periksa');
     }
 
     public function detailPeriksas():HasMany
     {
         return $this->hasMany(DetailPeriksa::class, 'id_periksa');
     }
-    public function obats()
-        {
-            return $this->belongsToMany(Obat::class);
-        }
-
 }

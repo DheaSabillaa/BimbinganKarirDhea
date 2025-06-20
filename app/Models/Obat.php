@@ -23,9 +23,4 @@ class Obat extends Model
     {
         return $this->hasMany(DetailPeriksa::class, 'id_obat');
     }
-public function obats()
-{
-    return $this->hasManyThrough(Obat::class, DetailPeriksa::class, 'id_periksa', 'id', 'id', 'id_obat');
-}
-
 }

@@ -21,55 +21,58 @@
                         </header>
 
                         <form class="mt-6" id="formEdit"
-                              action="{{ route('dokter.memeriksa.update', $janjiPeriksa->periksa->id) }}" method="POST">
+                            action="{{ route('dokter.memeriksa.update', $janjiPeriksa->periksa->id) }}" method="POST">
                             @csrf
                             @method('PATCH')
 
-                            <div class="mb-3">
+                            <div class="mb-3 form-group">
                                 <label for="editNamaInput">Nama</label>
                                 <input type="text" class="rounded form-control" id="editNamaInput"
-                                       value="{{ $janjiPeriksa->pasien->nama }}" readonly>
+                                    value="{{ $janjiPeriksa->pasien->nama }}" readonly>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="edit_tgl_periksa">Tanggal Periksa</label>
+                            <div class="mb-3 form-group">
+                                <label for="edit_tgl_periksa">Tanggal
+                                    Periksa</label>
                                 <input type="datetime-local" class="rounded form-control" id="edit_tgl_periksa"
-                                       name="tgl_periksa"
-                                       value="{{ date('Y-m-d\TH:i', strtotime($janjiPeriksa->periksa->tgl_periksa)) }}"
-                                       required>
+                                    name="tgl_periksa"
+                                    value="{{ date('Y-m-d\TH:i', strtotime($janjiPeriksa->periksa->tgl_periksa)) }}"
+                                    required>
                             </div>
 
-                            <div class="mb-3">
+                            <div class="mb-3 form-group">
                                 <label for="edit_catatan">Catatan</label>
-                                <textarea class="rounded form-control" id="edit_catatan" name="catatan"
-                                          rows="3">{{ $janjiPeriksa->periksa->catatan }}</textarea>
+                                <textarea class="rounded form-control" id="edit_catatan" name="catatan" rows="3">{{ $janjiPeriksa->periksa->catatan }}</textarea>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="edit_obat">Pilih Obat</label>
-                                <select class="rounded form-control" id="edit_obat" name="obats[]" multiple
-                                        onchange="hitungEditBiaya()">
+                            <div class="mb-3 form-group">
+                                <label for="edit_obat">Pilih
+                                    Obat</label>
+                                <select class="rounded form-control" id="edit_obat" name="obat[]" multiple
+                                    onchange="hitungEditBiaya()">
                                     @foreach ($obats as $obat)
-                                        <option value="{{ $obat->id }}"
-                                            data-harga="{{ $obat->harga }}"
-                                            {{ in_array($obat->id, $janjiPeriksa->periksa->obats->pluck('id')->toArray()) ? 'selected' : '' }}>
-                                            {{ $obat->nama_obat }} - {{ $obat->kemasan }}
-                                            (Rp {{ number_format($obat->harga, 0, ',', '.') }})
+                                        <option value="{{ $obat->id }}" data-harga="{{ $obat->harga }}"
+                                            {{ in_array($obat->id, $janjiPeriksa->periksa->detailPeriksas->pluck('id_obat')->toArray()) ? 'selected' : '' }}>
+                                            {{ $obat->nama_obat }} -
+                                            {{ $obat->kemasan }} (Rp
+                                            {{ number_format($obat->harga, 0, ',', '.') }})
                                         </option>
                                     @endforeach
                                 </select>
-                                <small class="form-text text-muted">
-                                    Tekan Ctrl (Windows) atau Command (Mac) untuk memilih lebih dari satu.
-                                </small>
+                                <small class="form-text text-muted">Tekan Ctrl
+                                    (Windows)
+                                    atau Command (Mac) untuk memilih lebih dari
+                                    satu.</small>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="edit_biaya_periksa">Biaya Pemeriksaan (Rp)</label>
+                            <div class="mb-3 form-group">
+                                <label for="edit_biaya_periksa">Biaya
+                                    Pemeriksaan (Rp)</label>
                                 <input type="text" class="rounded form-control" id="edit_biaya_periksa"
-                                       name="biaya_periksa" value="{{ $janjiPeriksa->periksa->biaya_periksa }}" readonly>
+                                    name="biaya_periksa" value="{{ $janjiPeriksa->periksa->biaya_periksa }}" readonly>
                             </div>
 
-                            <a href="{{ route('dokter.memeriksa.index') }}" class="btn btn-secondary">
+                            <a type="button" href="{{ route('dokter.memeriksa.index') }}" class="btn btn-secondary">
                                 Batal
                             </a>
                             <button type="submit" class="btn btn-primary">
@@ -92,8 +95,16 @@
                                 document.getElementById('edit_biaya_periksa').value = totalBiaya;
                             }
 
-                            document.addEventListener('DOMContentLoaded', function () {
-                                hitungEditBiaya();
+                            // Panggil fungsi perhitungan biaya saat halaman dimuat
+                            document.addEventListener('DOMContentLoaded', function() {
+                                // Panggil hanya jika modal edit ditampilkan
+                                const editModal = document.getElementById(
+                                    'editPasienModal');
+                                if (editModal) {
+                                    editModal.addEventListener('shown.bs.modal', function() {
+                                        hitungEditBiaya();
+                                    });
+                                }
                             });
                         </script>
                     </section>
